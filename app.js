@@ -46,7 +46,7 @@ app.post('/', (req, res) => {
 
   // Check if the file uploaded is a zip, if not then skip.
   if (path.extname(pubSubMessage.name) != '.zip') {
-    console.log("File '" + pubSubMessage.name + "' is not a zip file. Skipping.");
+    console.log(`File ${pubSubMessage.name} is not a zip file. Skipping.`);
     return res.sendStatus(200);
   }
 
@@ -54,17 +54,17 @@ app.post('/', (req, res) => {
 
   console.log("Processing file: " + pubSubMessage.name);
 
-  var gcsBucket = storage.bucket(pubSubMessage.bucket);
+  var gcsSourceBucket = storage.bucket(pubSubMessage.bucket);
   var gcsDestinationBucket = storage.bucket(process.env.DestinationBucket)
-  var gcsObject = gcsBucket.file(pubSubMessage.name);
+  var gcsSourceObject = gcsSourceBucket.file(pubSubMessage.name);
 
-  gcsObject.createReadStream()
+  gcsSourceObject.createReadStream()
     .pipe(unzipper.Parse())
     .on("entry", function (entry) {
       var filePath = entry.path;
       var type = entry.type;
       var size = entry.size;
-      console.log(`Found ${type}: ${filePath}`);
+      console.log(`Extracting ${type} ${filePath} to ${process.env.DestinationBucket} Bucket`);
       var gcsDestinationObject = gcsDestinationBucket.file(`${pubSubMessage.name}/${filePath}`);
       entry
         .pipe(gcsDestinationObject.createWriteStream())

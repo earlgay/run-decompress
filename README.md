@@ -19,7 +19,7 @@ gcloud builds submit --tag gcr.io/[PROJECT_NAME]/run-decompress
 ```
 2. Deploy service:
 ```
-gcloud beta run deploy run-decompress --image gcr.io/[PROJECT_NAME]/run-decompress --platform managed --update-env-vars DestinationBucket=[DESTINATION_BUCKET]
+gcloud beta run deploy run-decompress --image gcr.io/[PROJECT_NAME]/run-decompress --platform managed --no-allow-unauthenticated --update-env-vars DestinationBucket=[DESTINATION_BUCKET]
 ```
 3. The deployed service will return an HTTP URL, note this as [SERVICE_URL].
 
@@ -34,7 +34,7 @@ Further documentation:
 ## Configure Source Bucket Trigger
 1. Create a Pub/Sub Topic for new objects placed in bucket: 
 ```
-gsutil notification create -t [TOPIC_NAME] -f json gs://[SOURCE_BUCKET] -e OBJECT_FINALIZE
+gsutil notification create -t [TOPIC_NAME] -f json -e OBJECT_FINALIZE gs://[SOURCE_BUCKET]
 ```
 2. Create a Service Account for Subscription:
 ```
@@ -78,7 +78,7 @@ Further documentation:
 ## Test
 1. Copy test zip file to Source Bucket:
 ```
-gsutil cp testZip.zip gs://[SOURCE_BUCKET]
+gsutil cp testZip.zip gs://[SOURCE_BUCKET]/
 ```
 2. Check Destination Bucket for decompressed files:
 ```
